@@ -10,15 +10,9 @@ Looks for user-defined phrases in posts and automatically links them to specifie
 
 == Description ==
 
-KB Linker will link phrases you specify to sites you specify. For example, you could make it so that whenever “Wordpress” occurs in a post it is automatically linked to wordpress.org. All you do is enter keyword->URL pairs into the Options->KB Linker page in your admin screen. Enter pairs so that they look something like this:
+KB Linker will link phrases you specify to sites you specify. For example, you could make it so that whenever "Wordpress" occurs in a post it is automatically linked to wordpress.org. All you do is enter keyword/URL pairs into the Options=>KB Linker page in your admin menu. 
 
-`
-    wordpress->http://wordpress.org/
-    google->http://www.google.com/
-    knuckleheads->http://www.house.gov/
-`
-
-You’ll find more detailed instructions on the admin page. But really, it’s pretty easy. And KB Linker does the hard work of (a) making sure that words aren’t already linked and (b) making sure only whole words, not partial words, get linked.
+You'll find more detailed instructions on the admin page. But really, it's pretty easy. And KB Linker does the hard work of (a) making sure that words aren't already linked and (b) making sure only whole words, not partial words, get linked.
 
 The plugin is commented extensively, so if you want to tweak its behavior, give it a go.
 
