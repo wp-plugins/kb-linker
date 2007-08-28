@@ -4,8 +4,13 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.01
+Version: 1.02
 Author URI: http://adambrown.info/
+*/
+
+/*	 CHANGE LOG
+	1.01	initial upload
+	1.02	quick fix to check is_array before extracting on line 105
 */
 
 /* 
@@ -85,6 +90,10 @@ function kb_linker($content){
 
 
 function kb_linker_options_page(){
+	$sample = 'wordpress->http://wordpress.org/
+google->http://www.google.com/
+knuckleheads->http://www.house.gov/';
+
 	if ( $_POST['kb_linker'] ){
 		$pairs = str_replace("\r", '', $_POST['kb_linker']);
 		$pairs = explode("\n", $pairs);
@@ -102,14 +111,15 @@ function kb_linker_options_page(){
 		print '<div id="message" class="updated fade"><p><strong>KB Linker options updated.</strong> <a href="'.get_bloginfo('url').'">View site &raquo;</a></p></div>';
 	}else{
 		$option = get_option('kb_linker');
-		extract($option);
+		if (is_array($option)){
+			extract($option);
+		}else{
+			$text = $sample;
+			$plurals = 0;
+		}
 	}
 
 	$checked = ( 1 == $plurals ) ? 'checked="checked"' : '' ;
-
-	$sample = 'wordpress->http://wordpress.org/
-google->http://www.google.com/
-knuckleheads->http://www.house.gov/';
 
 	print '
 	<div class="wrap">
