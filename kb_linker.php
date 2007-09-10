@@ -4,7 +4,7 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.03
+Version: 1.04
 Author URI: http://adambrown.info/
 */
 
@@ -23,25 +23,29 @@ Author URI: http://adambrown.info/
 //	END OF SETTINGS. NO MORE EDITING REQUIRED.
 
 
-/*	 CHANGE LOG
-	1.01	initial upload
+/*	DEVELOPMENT NOTES
+
+	CHANGE LOG
+	1.01	initial release
 	1.02	quick fix to check is_array before extracting on line 105
 	1.03	- added support for German (or other) special characters
 		- added support for opening links in different targets
+	1.04	add 'i' tag to the tag-detection regexes (it was already in the main replacement one, causing some errors)
 
-
- 
 	IMPORTANT NOTE TO ANYBODY CONSIDERING ADDING THIS PLUGIN TO A WP-MU INSTALLATION:
 	If you aren't sure whether you are using a WP-MU blog, then you aren't. Trust me. If this warning applies to you, then you will know it.
 	For WP-MU administrators: You should not use this plugin. Your users could use it to place (potentially malicious) javascript into their blogs.
 	This plugin is PERFECTLY SAFE for non-WP-MU blogs, so ignore this message if you're using regular wordpress (you probably are).
 
+	KNOWN BUGS
+	- Pre 1.04: If a tag or attribute contained the keyword, but with different capitalization than specified in options, it was replaced. That causes problems.
+	- Post 1.04: Fixed that bug, but in return, you might find capitalization changing (within tags and attributes) to match that given in the linker's options. Sorry.
 
-	FOR DEVELOPERS, HACKERS, MODDERS, WHATEVER. If you're trying to modify something, read the following comments.
-	GENERAL NOTE:
+	GENERAL NOTE FOR DEVELOPERS/HACKERS/ETC:
 		You will notice that I've included extensive commenting in the code below. I do not have time to support this plugin. The commenting is there to make this plugin
 		easy to modify. Please try making modifications on your own before posting a support question at the plugin's URI.
 		That being said, you are welcome to post well-informed support questions on my site.
+
 	DATABASE STRUCTURE
 		the options->KB Linker page will create a set of matching terms and URLs that gets stored as a list.
 		structure of option "kb_linker":
@@ -85,13 +89,13 @@ function kb_linker($content){
 		// so let's find all instances where the keyword is in a link and replace it with something innocuous. Let's use &&&, since WP would pass that
 		// to us as &amp;&amp;&amp; (if it occured in a post), so it would never be in the $content on its own.
 		// this has two steps. First, look for the keyword as linked text:
-		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a.*>)|U', '$1$2&&&$4$5', $content);
+		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a.*>)|Ui', '$1$2&&&$4$5', $content);
 
 		// Next, look for the keyword inside tags. E.g. if they're linking every occurrence of "Google" manually, we don't want to find 
 		// <a href="http://google.com"> and change it to <a href="http://<a href="http://www.google.com">.com">
 		// More broadly, we don't want them linking anything that might be in a tag. (e.g. linking "strong" would screw up <strong>). 
 		// if you get problems with KB linker creating links where it shouldn't, this is the regex you should tinker with, most likely. Here goes:
-		$content = preg_replace( '|(<[^>]*)('.$keyword.')(.*>)|U', '$1&&&$3', $content);
+		$content = preg_replace( '|(<[^>]*)('.$keyword.')(.*>)|Ui', '$1&&&$3', $content);
 
 		// I'm sure a true master of regular expressions wouldn't need the previous two steps, and would simply write the replacement expression (below) better. But this works for me.
 	
