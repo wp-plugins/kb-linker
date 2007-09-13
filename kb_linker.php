@@ -4,7 +4,7 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.04
+Version: 1.05
 Author URI: http://adambrown.info/
 */
 
@@ -31,6 +31,7 @@ Author URI: http://adambrown.info/
 	1.03	- added support for German (or other) special characters
 		- added support for opening links in different targets
 	1.04	add 'i' tag to the tag-detection regexes (it was already in the main replacement one, causing some errors)
+	1.05	bugfix
 
 	IMPORTANT NOTE TO ANYBODY CONSIDERING ADDING THIS PLUGIN TO A WP-MU INSTALLATION:
 	If you aren't sure whether you are using a WP-MU blog, then you aren't. Trust me. If this warning applies to you, then you will know it.
@@ -39,7 +40,8 @@ Author URI: http://adambrown.info/
 
 	KNOWN BUGS
 	- Pre 1.04: If a tag or attribute contained the keyword, but with different capitalization than specified in options, it was replaced. That causes problems.
-	- Post 1.04: Fixed that bug, but in return, you might find capitalization changing (within tags and attributes) to match that given in the linker's options. Sorry.
+	- 1.04: Fixed that bug, but in return, you might find capitalization changing (within tags and attributes) to match that given in the linker's options. Sorry.
+	- 1.05 Fixed the capitalization bug
 
 	GENERAL NOTE FOR DEVELOPERS/HACKERS/ETC:
 		You will notice that I've included extensive commenting in the code below. I do not have time to support this plugin. The commenting is there to make this plugin
@@ -86,16 +88,16 @@ function kb_linker($content){
 		$url = str_replace( '&', '&amp;', $url );
 		
 		// we don't want to link the keyword if it is already linked.
-		// so let's find all instances where the keyword is in a link and replace it with something innocuous. Let's use &&&, since WP would pass that
+		// so let's find all instances where the keyword is in a link and precede it with &&&, which will be sufficient to avoid linking it. We use &&&, since WP would pass that
 		// to us as &amp;&amp;&amp; (if it occured in a post), so it would never be in the $content on its own.
 		// this has two steps. First, look for the keyword as linked text:
-		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a.*>)|Ui', '$1$2&&&$4$5', $content);
+		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a.*>)|Ui', '$1$2&&&$3$4$5', $content);
 
 		// Next, look for the keyword inside tags. E.g. if they're linking every occurrence of "Google" manually, we don't want to find 
 		// <a href="http://google.com"> and change it to <a href="http://<a href="http://www.google.com">.com">
 		// More broadly, we don't want them linking anything that might be in a tag. (e.g. linking "strong" would screw up <strong>). 
 		// if you get problems with KB linker creating links where it shouldn't, this is the regex you should tinker with, most likely. Here goes:
-		$content = preg_replace( '|(<[^>]*)('.$keyword.')(.*>)|Ui', '$1&&&$3', $content);
+		$content = preg_replace( '|(<[^>]*)('.$keyword.')(.*>)|Ui', '$1&&&$2$3', $content);
 
 		// I'm sure a true master of regular expressions wouldn't need the previous two steps, and would simply write the replacement expression (below) better. But this works for me.
 	
@@ -106,6 +108,7 @@ function kb_linker($content){
 			(?<=[\s>;"\'])
 				(?<=	marks it as a lookbehind assertion
 				to ensure that we are linking only complete words, we want keyword preceded by one of space, tag (>), entity (;) or certain kinds of punctuation (escaped with \ when necessary)
+				Note that '&' is NOT one of the allowed lookbehinds (or our '&&&' trick wouldn't work)
 			(?=[\s<&.,\'";:\-])
 				(?=	marks this as a lookahead assertion
 				again, we link only complete words. Must be followed by space, tag (<), entity (&), or certain kinds of punctuation. 
@@ -115,10 +118,9 @@ function kb_linker($content){
 			// this regex is almost identical to the non-plurals one, we just add an s? where necessary:
 			$content = preg_replace( '|(?<=[\s>;"\'/])('.$keyword.'s?)(?=[\s<&.,!\'";:\-/])|i', '<a href="'.$url.'" class="kblinker" '.$target.'>$1</a>', $content, 1);	// that "1" at the end limits it to replacing once per post.
 		}
-
-		// restore the keyword when it occurs in links:
-		$content = str_replace( '&&&', $keyword, $content);
 	}
+	// get rid of our '&&&' things.
+	$content = str_replace( '&&&', '', $content);
 	return $content;
 }
 
