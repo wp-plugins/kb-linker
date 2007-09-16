@@ -4,7 +4,7 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.05
+Version: 1.06
 Author URI: http://adambrown.info/
 */
 
@@ -32,6 +32,7 @@ Author URI: http://adambrown.info/
 		- added support for opening links in different targets
 	1.04	add 'i' tag to the tag-detection regexes (it was already in the main replacement one, causing some errors)
 	1.05	bugfix
+	1.06	bugfix
 
 	IMPORTANT NOTE TO ANYBODY CONSIDERING ADDING THIS PLUGIN TO A WP-MU INSTALLATION:
 	If you aren't sure whether you are using a WP-MU blog, then you aren't. Trust me. If this warning applies to you, then you will know it.
@@ -58,7 +59,9 @@ Author URI: http://adambrown.info/
 
 function kb_linker($content){
 	$option = get_option('kb_linker');
-	extract($option);
+	if (is_array($option)){
+		extract($option);
+	}
 	// uncomment for testing (to override options):
 	#$pairs = array( 'contributor'=>'http://google.com', 'a'=>'http://yahoo.com/', 'scripting'=>'scripting', 'don'=>'don', 'first post'=>'firstpost.org', 'first'=>'first.org', 'wp'=>'WP.ORG');
 	if ( !is_array($pairs) )
