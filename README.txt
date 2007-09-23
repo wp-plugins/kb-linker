@@ -18,7 +18,7 @@ The plugin file is commented extensively, so if you want to tweak its behavior, 
 
 = Support =
 
-If you post your support questions as comments below, I probably won't see them. If the commenting within the plugin file doesn't answer your questions, you can post support questions at the [KB Linker plugin page](http://adambrown.info/b/widgets/kb-linker/) on my site.
+If you post your support questions as comments below, I probably won't see them. If the notes in the plugin file doesn't answer your questions, you can post support questions at the [KB Linker plugin page](http://adambrown.info/b/widgets/kb-linker/) on my site.
 
 == Installation ==
 
@@ -52,7 +52,7 @@ Yes, as of version 1.03. See the instructions on the plugin's admin page.
 
 = I have problems on my non-English blog. =
 
-Tweak the setting at the top of the plugin file.
+Tweak the settings at the top of the plugin file.
 
 = Does the plugin do X? =
 
@@ -60,4 +60,4 @@ Probably not. But this is a simple piece of code, so try modifying it to suit yo
 
 = I have a question that isn't addressed here. =
 
-If you post your support questions as comments below, I probably won't see them. If the commenting within the plugin file doesn't answer your questions, you can post support questions at the [KB Linker plugin page](http://adambrown.info/b/widgets/kb-linker/) on my site.
+If you post your support questions as comments below, I probably won't see them. You can post support questions at the [KB Linker plugin page](http://adambrown.info/b/widgets/kb-linker/) on my site. But first, PLEASE read through the notes at the top of the plugin file.
