@@ -4,7 +4,7 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.10
+Version: 1.101
 Author URI: http://adambrown.info/
 */
 
@@ -20,13 +20,18 @@ Author URI: http://adambrown.info/
 				'Ü' => '&#220;',
 				'ß' => '&#223;'
 	);
-	/* when this plugin creates links, it will also populate the link's TITLE tag with the keyword. If you want to customize the text before or after the keyword, do so below.
-		By default, the title tag will say "Read about KEYWORD."	*/
+	/* 	would you like to add title="" tags to the links with the keyword in them? true or false. */
+	define( 'KBLINKER_USE_TITLES' , true );
+	/* 	if the preceding setting is TRUE, you can customize the text before or after the keyword below. For example, if you want titles to say "More about KEYWORD.",
+		then make before = 'More about ' (note the space) and after = '.' 	*/
 	$kblinker_title_text = array(
-		'before' => 'Read about ', // default: 'Read about '	(note the space at the end)
-		'after' => '.',
+		'before' => 'More about ', // default: 'More about '
+		'after' => ' &raquo;',	// default: '$raquo;' (an arrow pointing to the right)
 	);
 //	END OF SETTINGS. NO MORE EDITING REQUIRED.
+
+
+
 
 
 /*	DEVELOPMENT NOTES
@@ -42,6 +47,7 @@ Author URI: http://adambrown.info/
 	1.10	- puts keyword in link's "title" tags
 		- won't link the same URL more than once per post, even if multiple keywords are associated with it
 		- won't link a page to itself (imperfect)
+	1.101	bugfix
 
 	IMPORTANT NOTE TO ANYBODY CONSIDERING ADDING THIS PLUGIN TO A WP-MU INSTALLATION:
 	If you aren't sure whether you are using a WP-MU blog, then you aren't. Trust me. If this warning applies to you, then you will know it.
@@ -90,7 +96,7 @@ function kb_linker($content){
 
 	// needed below...
 	$usedUrls = array();
-	$currentUrl = $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]; // may not work on all hosting setups.
+	$currentUrl = 'http://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]; // may not work on all hosting setups.
 
 	// most of the action is in here.
 	foreach ($pairs as $keyword => $url){
@@ -108,7 +114,7 @@ function kb_linker($content){
 		// first, let's check whether we've got a "target" attribute specified.
 		if (false!==strpos( $url, ' ' ) ){	// Let's not waste CPU resources unless we see a ' ' in the URL:
 			$target = trim(   substr( $url, strpos($url,' ') )   );
-			$target = 'target="'.$target.'"';
+			$target = ' target="'.$target.'"';
 			$url = substr( $url, 0, strpos($url,' ') );
 		}else{
 			$target='';
@@ -132,9 +138,13 @@ function kb_linker($content){
 
 		// I'm sure a true master of regular expressions wouldn't need the previous two steps, and would simply write the replacement expression (below) better. But this works for me.
 	
+		// set the title attribute:
+		if (KBLINKER_USE_TITLES)
+			$title = ' title="'.$kblinker_title_text['before'].$keyword.$kblinker_title_text['after'].'"';
+		
 		// now that we've taken the keyword out of any links it appears in, let's look for the keyword elsewhere.
 		if ( 1 != $plurals ){	 // we do basically the same thing whether we're looking for plurals or not. Let's do non-plurals option first:
-			$content = preg_replace( '|(?<=[\s>;"\'/])('.$keyword.')(?=[\s<&.,!\'";:\-/])|i', '<a href="'.$url.'" class="kblinker" '.$target.' title="'.$kblinker_title_text['before'].$keyword.$kblinker_title_text['after'].'">$1</a>', $content, 1);	// that "1" at the end limits it to replacing the keyword only once per post.
+			$content = preg_replace( '|(?<=[\s>;"\'/])('.$keyword.')(?=[\s<&.,!\'";:\-/])|i', '<a href="'.$url.'" class="kblinker"'.$target.$title.'>$1</a>', $content, 1);	// that "1" at the end limits it to replacing the keyword only once per post.
 			/* some notes about that regular expression to make modifying it easier for you if you're new to these things:
 			(?<=[\s>;"\'])
 				(?<=	marks it as a lookbehind assertion
@@ -147,7 +157,7 @@ function kb_linker($content){
 			*/
 		}else{	// if they want us to look for plurals too:
 			// this regex is almost identical to the non-plurals one, we just add an s? where necessary:
-			$content = preg_replace( '|(?<=[\s>;"\'/])('.$keyword.'s?)(?=[\s<&.,!\'";:\-/])|i', '<a href="'.$url.'" class="kblinker" '.$target.' title="'.$kblinker_title_text['before'].$keyword.$kblinker_title_text['after'].'">$1</a>', $content, 1);	// that "1" at the end limits it to replacing once per post.
+			$content = preg_replace( '|(?<=[\s>;"\'/])('.$keyword.'s?)(?=[\s<&.,!\'";:\-/])|i', '<a href="'.$url.'" class="kblinker"'.$target.$title.'>$1</a>', $content, 1);	// that "1" at the end limits it to replacing once per post.
 		}
 	}
 	// get rid of our '&&&' things.
@@ -223,6 +233,6 @@ function kb_linker_admin_page(){
 	add_submenu_page('options-general.php', 'KB Linker', 'KB Linker', 5, 'kb_linker.php', 'kb_linker_options_page');
 }
 
-add_filter('the_content', 'kb_linker');
+add_filter('the_content', 'kb_linker', 9); // run before Dagon Design Sitemap Generator (runs at priority 10)
 add_action('admin_menu', 'kb_linker_admin_page');
 ?>
