@@ -4,7 +4,7 @@ Plugin Name: KB Linker
 Plugin URI: http://adambrown.info/b/widgets/kb-linker/
 Description: Looks for user-defined phrases in posts and automatically links them. Example: Link every occurrence of "Wordpress" to wordpress.org.
 Author: Adam R. Brown
-Version: 1.101
+Version: 1.102
 Author URI: http://adambrown.info/
 */
 
@@ -48,6 +48,7 @@ Author URI: http://adambrown.info/
 		- won't link the same URL more than once per post, even if multiple keywords are associated with it
 		- won't link a page to itself (imperfect)
 	1.101	bugfix
+	1.102	bugfix
 
 	IMPORTANT NOTE TO ANYBODY CONSIDERING ADDING THIS PLUGIN TO A WP-MU INSTALLATION:
 	If you aren't sure whether you are using a WP-MU blog, then you aren't. Trust me. If this warning applies to you, then you will know it.
@@ -128,7 +129,7 @@ function kb_linker($content){
 		// so let's find all instances where the keyword is in a link and precede it with &&&, which will be sufficient to avoid linking it. We use &&&, since WP would pass that
 		// to us as &amp;&amp;&amp; (if it occured in a post), so it would never be in the $content on its own.
 		// this has two steps. First, look for the keyword as linked text:
-		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a.*>)|Ui', '$1$2&&&$3$4$5', $content);
+		$content = preg_replace( '|(<a[^>]+>)(.*)('.$keyword.')(.*)(</a[^>]*>)|Ui', '$1$2&&&$3$4$5', $content);
 
 		// Next, look for the keyword inside tags. E.g. if they're linking every occurrence of "Google" manually, we don't want to find 
 		// <a href="http://google.com"> and change it to <a href="http://<a href="http://www.google.com">.com">

@@ -3,7 +3,7 @@ Contributors: adamrbrown
 Donate link: http://adambrown.info/b/widgets/donate/
 Tags: link, seo, links
 Requires at least: 2.0
-Tested up to: 2.2.2
+Tested up to: 2.5
 Stable tag: trunk
 
 Looks for user-defined phrases in posts and automatically links them to specified URLs. Example: Link every occurrence of "Wordpress" to wp.org.
